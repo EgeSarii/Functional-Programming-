@@ -3,18 +3,22 @@ module Obfuscate where
 import Data.Char
 import Data.List
 
+
 cambridge :: String -> String
 cambridge xs = intercalate " " (map mix (words xs))
 
 
-mix :: (Ord a, Num a) => [a] -> [a]
+mix :: String -> String
 mix [] = []
 mix [a] = [a]
-mix xs = if sort (tail(init xs)) == (tail(init xs)) then head xs : reverse(sort (tail(init xs))) ++[lastLetter xs] else 
-       head xs : (sort (tail(init xs))) ++[last xs]
+mix xs 
+ | (sort (tail(init xs)) == (tail(init xs))) && length(lastLetter xs)==2 = head xs : reverse(sort (tail(init(init xs)))) ++lastLetter xs 
+ | (sort (tail(init xs)) /= (tail(init xs))) && length(lastLetter xs)==2 = head xs : (sort (tail(init(init xs)))) ++lastLetter xs
+ | (sort (tail(init xs)) == (tail(init xs))) && length(lastLetter xs)==1 = head xs : reverse(sort (tail(init xs))) ++lastLetter xs 
+ | (sort (tail(init xs)) /= (tail(init xs))) && length(lastLetter xs)==1 = head xs : (sort (tail(init xs))) ++lastLetter xs
 
-lastLetter :: (Ord a, Num a) =>[a]-> a
-lastLetter xs = if ((last xs) < 123 && last xs > 64) then last xs else last(init xs)       
+lastLetter :: String -> String
+lastLetter xs = if ((last xs) <= 'z' && last xs >= 'A') then [last xs] else (last(init xs): last xs:[])       
 
 
 meme :: String
