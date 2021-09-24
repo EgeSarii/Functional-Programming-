@@ -24,11 +24,3 @@ zipWithSamePosition xs ys = [ e | (x,y) <- zip xs ys, e <- [x,y] ]
 
 concatenate xss   = [ x | xs <- xss, x <- xs ]
 --It concatenates the lists in xss. It is polymorphic function. It is not overloaded.
-
-{-
-SORULACAK SORULAR
-
-Overloaded dedigi ne?
-
-
--}
