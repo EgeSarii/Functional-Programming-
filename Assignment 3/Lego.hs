@@ -1,3 +1,6 @@
+--Ege Sari s1034535
+--Group 81
+
 module Lego where
 
 import Data.List

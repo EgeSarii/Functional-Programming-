@@ -1,3 +1,7 @@
+--Ege Sari s1034535
+--Group 81
+
+
 module ListComprehensions where
 
 import Data.List
