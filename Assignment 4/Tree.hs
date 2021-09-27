@@ -15,7 +15,10 @@ tree = Node 3 (Node 2 (Node 1 Leaf Leaf) Leaf) (Node 4 (Node 5 Leaf Leaf) Leaf)
 --isSearchTree :: (Ord a) => Tree a -> Bool
 
 {----------- exercise 4.4 -------------}
-
+hello =(insert"Marc" .insert"Twan" .insert"Sjaak") Leaf
+hello1 =(insert"Twan" .insert"Sjaak") Leaf
+hello2 =(insert"Sjaak") Leaf
+hello3 =Node 3 (Node 2 (Node 1 Leaf Leaf) Leaf) (Node 4 Leaf (Node 5 Leaf Leaf))
 member :: (Ord a) => a -> Tree a -> Bool
 member _ Leaf = False
 member x (Node a l r )= if (x==a) then True else False ||((member x l) || (member x r))
@@ -24,24 +27,39 @@ insert :: (Ord a) => a -> Tree a -> Tree a
 insert x Leaf = Node x Leaf Leaf
 insert x (Node a l r) = if (x<=a) then (Node a (insert x l) r) else (Node a l (insert x r))
 
-
 fromList :: (Ord a) => [a] -> Tree a
 fromList [] = Leaf
 fromList [a] = insert a Leaf
-fromList (x:xs)= insert(xs!!1)(insert x Leaf)
+fromList (x:xs)= insert x (fromList xs)
 
-{-
+findMin ::(Ord a) => a -> Tree a -> a
+findMin _ (Node a Leaf Leaf) = a
+findMin x Leaf = x
+findMin x (Node a l r) = min (findMin x l) (findMin x r) 
+
+
 delete :: (Ord a) => a -> Tree a -> Tree a
 delete _ Leaf = Leaf
-delete x (Node a l r) 
- | not (member x (Node a l r)) = (Node a l r)
- | (member x (Node a l r)) = 
--}
-
+delete x (Node a Leaf Leaf) = if x== a then Leaf else Node a Leaf Leaf
+delete x (Node a l Leaf) = if x==a then l else (Node a l Leaf)
+delete x (Node a Leaf r) = if x==a then r else (Node a Leaf r)
+delete x (Node a l r) = if x==a then (Node (findMin a r) l (delete (findMin a r) r)) else (Node a (delete x l) (delete x r))
 
 {----------- exercise 4.5 -------------}
 
---inOrder :: Tree a -> [a]
+
+minElem :: a -> Tree a -> a
+minElem a Leaf = a
+minElem x (Node a Leaf Leaf) = a  
+minElem x (Node a l _) = minElem a l
+
+
+inOrder :: Tree a -> [a]
+inOrder Leaf = []
+inOrder (Node a l r) = [minElem a (Node a l r)] 
+
+
+
 --fromAscList :: [a] -> Tree a
 --breadthFirst :: Tree a -> [a]
 
