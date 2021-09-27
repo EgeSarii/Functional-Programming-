@@ -3,7 +3,7 @@ module Tree where
 data Tree a = Leaf | Node a (Tree a) (Tree a)
   deriving Show
 
-tree = Node 3 (Node 2 (Node 1 Leaf Leaf) Leaf) (Node 4 (Node 5 Leaf Leaf) Leaf)
+tree = Node "c" (Node "a" Leaf (Node "b" Leaf Leaf) ) (Node "f" (Node "d" Leaf Leaf) (Node "g" Leaf Leaf) )
 
 
 {----------- exercise 4.3 -------------}
@@ -15,9 +15,6 @@ tree = Node 3 (Node 2 (Node 1 Leaf Leaf) Leaf) (Node 4 (Node 5 Leaf Leaf) Leaf)
 --isSearchTree :: (Ord a) => Tree a -> Bool
 
 {----------- exercise 4.4 -------------}
-hello =(insert"Marc" .insert"Twan" .insert"Sjaak") Leaf
-hello1 =(insert"Twan" .insert"Sjaak") Leaf
-hello2 =(insert"Sjaak") Leaf
 hello3 =Node 3 (Node 2 (Node 1 Leaf Leaf) Leaf) (Node 4 Leaf (Node 5 Leaf Leaf))
 member :: (Ord a) => a -> Tree a -> Bool
 member _ Leaf = False
@@ -47,21 +44,32 @@ delete x (Node a l r) = if x==a then (Node (findMin a r) l (delete (findMin a r)
 
 {----------- exercise 4.5 -------------}
 
-
-minElem :: a -> Tree a -> a
-minElem a Leaf = a
-minElem x (Node a Leaf Leaf) = a  
-minElem x (Node a l _) = minElem a l
-
-
 inOrder :: Tree a -> [a]
 inOrder Leaf = []
-inOrder (Node a l r) = [minElem a (Node a l r)] 
+inOrder (Node a Leaf Leaf) = [a]
+inOrder (Node a l Leaf) = (inOrder l) ++ [a]
+inOrder (Node a Leaf r) = [a] ++ (inOrder r)
+inOrder (Node a l r) = inOrder l ++ [a] ++ inOrder r
 
+fromAscList :: [a] -> Tree a
+fromAscList [] = Leaf
+fromAscList [a] = Node a Leaf Leaf
+fromAscList [a,b] = Node b (Node a Leaf Leaf) Leaf
+fromAscList [a,b,c] = Node b (Node a Leaf Leaf) (Node c Leaf Leaf)
+fromAscList xs = Node (returnMid xs) (fromAscList (take (div (length xs) 2) xs)) (fromAscList (reverse(take (div (length xs ) 2) (reverse xs))))
 
+returnMid :: [a] -> a
+returnMid [a] = a
+returnMid [a,b] = b
+returnMid [a,b,c] = b
+returnMid xs =  returnMid ((init(tail xs)))
 
---fromAscList :: [a] -> Tree a
---breadthFirst :: Tree a -> [a]
+breadthFirst :: Tree a -> [a]
+breadthFirst Leaf = []
+breadthFirst (Node a Leaf Leaf) = [a]
+breadthFirst (Node a l Leaf) = [a] ++ (breadthFirst l)
+breadthFirst (Node a Leaf r) = [a] ++ (breadthFirst r)
+breadthFirst (Node a l r) = [a] ++ (breadthFirst l) ++ (breadthFirst r)
 
 {- BONUS: a tree pretty printer; the recursive structure of this function
  - is prety simple, but it is a fiddly function to write if you want it to
