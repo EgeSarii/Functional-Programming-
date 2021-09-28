@@ -3,7 +3,7 @@ module Tree where
 data Tree a = Leaf | Node a (Tree a) (Tree a)
   deriving Show
 
-tree = Node "c" (Node "a" Leaf (Node "b" Leaf Leaf) ) (Node "f" (Node "d" Leaf Leaf) (Node "g" Leaf Leaf) )
+tree = Node 'c' (Node 'a' Leaf (Node 'b' (Node 'e' Leaf (Node 'k' Leaf Leaf)) Leaf) ) (Node 'f' (Node 'd' Leaf Leaf) (Node 'g' Leaf Leaf) )
 
 
 {----------- exercise 4.3 -------------}
@@ -67,9 +67,11 @@ returnMid xs =  returnMid ((init(tail xs)))
 breadthFirst :: Tree a -> [a]
 breadthFirst Leaf = []
 breadthFirst (Node a Leaf Leaf) = [a]
-breadthFirst (Node a l Leaf) = [a] ++ (breadthFirst l)
-breadthFirst (Node a Leaf r) = [a] ++ (breadthFirst r)
-breadthFirst (Node a l r) = [a] ++ (breadthFirst l) ++ (breadthFirst r)
+bradthFirst (Node a l Leaf) = [a] ++ bre
+
+
+createList :: Tree a -> [Tree a] -> [Tree a] 
+createList t ts = ts ++ [t]
 
 {- BONUS: a tree pretty printer; the recursive structure of this function
  - is prety simple, but it is a fiddly function to write if you want it to
