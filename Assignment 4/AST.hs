@@ -18,7 +18,7 @@ eval (VarX) a = (Just a)
 eval (Add e1 e2) b = Just (head(fromVal(eval e1 b)) + head(fromVal(eval e2 b)))
 eval (Mul e1 e2) b = Just (head(fromVal(eval e1 b)) * head(fromVal(eval e2 b)))
 eval (Sub e1 e2) b = Just (head(fromVal(eval e1 b)) - head(fromVal(eval e2 b)))
-eval (Div e1 e2) b = if (eval(Mul e2 (VarX)) 0)== (Just 0.0) then Nothing else Just (head(fromVal(eval e1 b)) / head(fromVal(eval e2 b)))
+eval (Div e1 e2) b = if (eval e2 0)== (Just 0) then Nothing else Just (head(fromVal(eval e1 b)) / head(fromVal(eval e2 b)))
 
 
 
