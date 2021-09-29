@@ -65,16 +65,30 @@ returnMid [a,b,c] = b
 returnMid xs =  returnMid ((init(tail xs)))
 
 breadthFirst :: Tree a -> [a]
-breadthFirst Leaf = []
-breadthFirst (Node a Leaf Leaf) = [a]
-bradthFirst (Node a l Leaf) = [a] ++ bre
+breadthFirst t = breadthHelper  [t]
 
+breadthHelper :: [Tree a] -> [a]
+breadthHelper  [] =[]
+breadthHelper  [Leaf] = []
+breadthHelper  xs = (getValue (head xs)) ++ breadthHelper  ((tail xs) ++ (getLeft (head xs)) ++ (getRight (head xs)) )
 
-createList :: Tree a -> [Tree a] -> [Tree a] 
-createList t ts = ts ++ [t]
+getValue :: Tree a -> [a]
+getValue (Node a l r) = [a]
+getValue Leaf =[]
 
-{- BONUS: a tree pretty printer; the recursive structure of this function
- - is prety simple, but it is a fiddly function to write if you want it to
+getLeft :: Tree a -> [Tree a]
+getLeft (Node a l r) = [l]
+getLeft Leaf =[]
+
+getRight :: Tree a -> [Tree a]
+getRight (Node a l r) = [r]
+getRight Leaf =[]
+ 
+
+{- BONUS: a
+getValue  tree pretty printer; the recursive structure of this function
+ - is prety simple, but it is a
+ getValue  fiddly function to write if you want it to
  - produce an actually nice tree. -}
 
 {-
