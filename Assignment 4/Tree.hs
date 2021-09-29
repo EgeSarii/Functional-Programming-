@@ -1,3 +1,6 @@
+--Ege Sari s1034535
+--Group 81
+
 module Tree where
 
 data Tree a = Leaf | Node a (Tree a) (Tree a)
