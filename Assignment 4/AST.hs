@@ -9,10 +9,8 @@ data Expr = Lit Integer
           | Mul Expr Expr 
           | Sub Expr Expr 
           | Div Expr Expr
-
-expr = Mul (VarX) (Mul (Lit 4) (Lit 2))
           
-eval :: (Fractional a) => Expr -> a -> Maybe a
+eval :: (Fractional a, Eq a) => Expr -> a -> Maybe a
 eval (Lit a) x =  Just (fromIntegral a)
 eval (VarX) a = (Just a)
 eval (Add e1 e2) b = Just (head(fromVal(eval e1 b)) + head(fromVal(eval e2 b)))
