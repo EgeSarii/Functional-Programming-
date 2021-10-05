@@ -16,8 +16,11 @@ zip a b= unfoldr (\(as, bs) -> case as of [] -> Nothing ; (x:xs)-> (case bs of [
 take :: Int -> [a] -> [a]
 take n a = unfoldr (\(s,as)-> case as of [] -> Nothing ; (x:xs)-> (if s<1 then Nothing else Just(x, (s-1, xs)))) (n,a)
 
---primes :: [Integer]
+primes :: [Integer]
+primes= sieve [2..] where sieve(p:xs) = p :sieve[ n | n <- xs, n `mod` p /= 0 ]
 
+primes1 :: [Integer]
+primes1 = unfoldr (\as -> case as of [] -> Nothing ; (x:xs)-> (if (head xs)`mod` x /= 0 then Just(x, xs) else Nothing))[2..]
 apo :: (t -> Either [a] (a, t)) -> t -> [a]
 apo f seed = case f seed of
                Left l       -> l
