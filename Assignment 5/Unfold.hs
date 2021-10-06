@@ -17,15 +17,20 @@ take :: Int -> [a] -> [a]
 take n a = unfoldr (\(s,as)-> case as of [] -> Nothing ; (x:xs)-> (if s<1 then Nothing else Just(x, (s-1, xs)))) (n,a)
 
 primes :: [Integer]
-primes= sieve [2..] where sieve(p:xs) = p :sieve[ n | n <- xs, n `mod` p /= 0 ]
+primes = unfoldr (\as -> case as of [] -> Nothing ; (x:xs)-> (if (head xs)`mod` x /= 0 then Just(x, xs) else Nothing))[2..]
 
-primes1 :: [Integer]
-primes1 = unfoldr (\as -> case as of [] -> Nothing ; (x:xs)-> (if (head xs)`mod` x /= 0 then Just(x, xs) else Nothing))[2..]
+
+
 apo :: (t -> Either [a] (a, t)) -> t -> [a]
 apo f seed = case f seed of
                Left l       -> l
                Right (a,ns) -> a : apo f ns
 
--- (++) :: [a] -> [a] -> [a]
--- insert :: (Ord a) => a -> [a] -> [a]
--- unfoldrApo :: (t -> Maybe (a, t)) -> t -> [a]
+(++) :: [a] -> [a] -> [a]
+(++) a b = apo (\(as,bs)-> case as of [] -> Left bs; (x:xs)->(case bs of []-> (Left as); (y:ys)->Right(x, (xs,bs)))) (a,b)
+
+insert :: (Ord a) => a -> [a] -> [a]
+insert e l = apo (\(a,as) -> case as of []-> Left [a]; (x:xs)-> (if a<=x then (Left (a:x:xs)) else Right (x, (a,xs)))) (e,l)
+
+unfoldrApo :: (t -> Maybe (a, t)) -> t -> [a]
+unfoldrApo  f a = apo (\s -> case s of Nothing -> Left []; (Just (x,y))-> Right(x,(f y))) (f a) 
