@@ -6,8 +6,8 @@ import qualified Data.Map as M
 wordFrequency :: String -> [(String,Int)]
 wordFrequency  = map (\x->(head x,length x)) . group . sort . words
 
---mostFrequentOfLength :: Int -> String -> ??
-
+mostFrequentOfLength :: Int -> String -> [(String,Int)]
+mostFrequentOfLength n = (filter (\(x,y)-> y>=n)). wordFrequency 
 --wordLengthFrequency :: String -> ??
 
 --anagrams :: String -> ??
