@@ -12,10 +12,13 @@ mostFrequentOfLength n = reverse.(filter (\(x,y)-> y>=n)). wordFrequency
 wordLengthFrequency :: String -> [(Int,Int)]
 wordLengthFrequency  = sortOn fst . map (\(x,y) -> ((length x), y))  . wordFrequency
 
-anagrams :: String -> [[String]]
-anagrams
+--anagrams :: String -> [String]
 
+
+wordFrequency_Alt :: String -> [(String,Int)]
+wordFrequency_Alt = (M.insert "anan" 2) M.empty
 
 main :: IO ()
 main = onStdin $ wordFrequency  -- change this to run a different function
   where onStdin f = getContents >>= mapM_ print . f . filter (\x->isAlphaNum x || isSpace x)
+
