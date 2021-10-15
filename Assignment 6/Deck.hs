@@ -1,4 +1,8 @@
+module Deck where
+
+
 import Data.List
+
 
 data Suit  = Clubs | Diamonds | Hearts | Spades       deriving (Eq,Ord,Enum)
 data Value = Ace | Numeral Int | Jack | Queen | King  deriving (Eq,Ord)
