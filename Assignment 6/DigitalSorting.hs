@@ -1,3 +1,7 @@
+--Ege Sari s1034535
+--Group 81
+
+
 module DigitalSorting where
 
 import Data.List
@@ -35,8 +39,32 @@ instance (Rankable key1, Rankable key2) => Rankable (key1,key2) where
 assoc ::((k1,k2),a) -> (k1,(k2,a))
 assoc ((k1,k2), a) = (k1, (k2,a))
 
---instance Rankable Maybe where
-  --rank:: (Rankable key) => [(Maybe key,a)] -> [[a]]
- 
+instance (Rankable key) => Rankable (Maybe key) where
+  --rank:: (Rankable key) => [(Maybe key,a)] -> [[a]] 
+  rank =  helperRank rank . break (\(x,y)-> if isJust x then True else False) .reverse . helperMaybe
 
---[(Nothing,1), (Nothing,2), (Just 1,3), (Just 1 ,4), (Just 2, 5)]
+helperMaybe:: [(Maybe key, v)] -> [(Maybe key, v)]
+helperMaybe[] =[]
+helperMaybe(x:xs) = if isNothing (fst x) then helperMaybe xs ++ [x] else [x] ++ helperMaybe xs
+
+turnToNormal :: (Maybe key ,v) -> (key, v)
+turnToNormal (a,b) = (fromJust a, b)
+
+helperRank :: (Rankable key) =>( [(key,a)] -> [[a]] ) -> ([(Maybe key, a) ],[(Maybe key, a) ])-> [[a]]
+helperRank f ([],x) = f (map turnToNormal x)
+helperRank f (x, []) = [map snd x]
+helperRank f (x, y) = (map snd x) : f (map turnToNormal y)
+
+
+instance (Rankable key ) => Rankable [key] where
+--  rank = 
+
+
+assoc2 :: (String,a) -> (Char,(String,a))
+assoc2 (s,v) = (fst (fromJust(uncons s)), (snd(fromJust(uncons s)), v))
+
+{-
+
+Unfortunately, I was not able to finish 6.6 , 6.7. I know how to do 6.6 by using uncons, with the same logic 
+in 6.4 but no time left. Sorry for this.
+-}
