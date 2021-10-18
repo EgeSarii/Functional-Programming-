@@ -1,3 +1,7 @@
+--Ege Sari s1034535
+--Group 81
+
+
 module Huffman where
 
 import Data.List
@@ -14,6 +18,7 @@ frequencies :: (Ord a) => [a] -> [(a,Int)]
 frequencies = map (\x->(head x,length x)) . group . sort 
 
 -----------------------------------------------------------------------
+ct = huffman (frequencies "hello world")
 
 huffman :: [(a,Int)] -> Btree a
 huffman = buildTree . convertToTip
@@ -34,15 +39,29 @@ buildTree xs = buildTree( sortTree(takeTwo xs : (drop 2 xs)))
 
 -----------------------------------------------------------------------
 
---encode :: (Ord a) => Btree a -> [a] -> [Bit]
+encode :: (Ord a) => Btree a -> [a] -> [Bit]
+encode _ [] = []
+encode bt (x:xs) = (findLetter (codes bt) x) ++ (encode bt xs) 
+
+findLetter :: (Ord a) => [(a, [Bit])] -> a -> [Bit]
+findLetter [] _ = []
+findLetter (x:xs) a = if a== (fst x) then (snd x) else (findLetter xs a)
 
 codes :: Btree a -> [(a, [Bit])]
-codes (Bin l r )= codes l ++ codes r
-codes (Bin (Tip a) (Tip b)) = [(a, [O]), (b,[I])]
+codes bt = codes_bit bt []
 
+codes_bit :: Btree a -> [Bit] -> [(a, [Bit])]
+codes_bit (Tip a) xs = [(a, xs)]
+codes_bit (Bin l r) xs = (codes_bit l (xs ++ [O])) ++(codes_bit r (xs ++ [I])) 
 -----------------------------------------------------------------------
 
---decode :: (Ord a) => Btree a -> [Bit] -> [a]
+decode :: Btree a -> [Bit] -> [a]
+decode t xs = decode_helper t xs t
+
+decode_helper :: Btree a -> [Bit] -> Btree a-> [a]
+decode_helper (Tip a) xs t= [a] ++ decode_helper t xs t 
+decode_helper (Bin l r) ( x:xs) t= if x==O then (decode_helper l xs t) else (decode_helper r xs t)
+decode_helper _ []_ = []
 
 -----------------------------------------------------------------------
 
