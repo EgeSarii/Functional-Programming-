@@ -14,10 +14,27 @@ inorder (Node x lt rt) = inorder lt ++ [x] ++ inorder rt
 {-
 Derive
   inorderCat t xs = inorder t ++ xs
+
+Case t= Leaf ( Base Case)
+
+inorderCat Leaf xs  = inorder Leaf ++ xs { specification of inorderCat}
+                    = [] ++ xs {definition of inorder rule 1 }
+                    = xs {definition of ++ }
+
+Case t = (Node x l r ) (Inductive Step) 
+  with IH : inorderCat r xs = inorder r ++ xs
+
+inorderCat (Node x l r) xs = inorder (Node x l r) ++ xs
+                           = inorder l ++ [x] ++ inorder r ++ xs{definition of inorder rule 2}
+                           = (inorder l ++ [x]) ++ (inorder r ++ xs) {definition of ++}
+                           = (inorderCat l [x]) ++ (inorderCat r xs) {definition of IH}
+
+
 -}
 
 inorderCat :: Tree a -> [a] -> [a]
-inorderCat t xs = inorder t ++ xs -- TODO: make me more efficient
+inorderCat Leaf xs = xs
+inorderCat (Node x l r) xs= (inorderCat l [x]) ++ (inorderCat r xs)
 
 inorder' :: Tree a -> [a]
 inorder' t = inorderCat t []
@@ -26,4 +43,24 @@ inorder' t = inorderCat t []
 elems :: Tree a -> [a]
 elems Leaf = []
 elems (Node x lt rt) = x : elems lt ++ elems rt
+{-
+Derive
+  elemsCat t xs = elems t ++ xs
+
+Case t= Leaf ( Base Case)
+
+inorderCat Leaf xs  = inorder Leaf ++ xs { specification of inorderCat}
+                    = [] ++ xs {definition of inorder rule 1 }
+                    = xs {definition of ++ }
+
+Case t = (Node x l r ) (Inductive Step) 
+  with IH : inorderCat r xs = inorder r ++ xs
+
+inorderCat (Node x l r) xs = inorder (Node x l r) ++ xs
+                           = inorder l ++ [x] ++ inorder r ++ xs{definition of inorder rule 2}
+                           = (inorder l ++ [x]) ++ (inorder r ++ xs) {definition of ++}
+                           = (inorderCat l [x]) ++ (inorderCat r xs) {definition of IH}
+
+
+-}
 
