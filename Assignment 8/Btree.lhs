@@ -14,20 +14,29 @@ To prove: map f (tips t) = tips (mapBtree f t) for all f,t
 
 
 {-
-BASE CASE : We show that the property holds for t = Tip x
+BASE CASE : We show that the property holds for t = Tip x, map f (tips (Tip x)) = tips (mapBtree f Tip x)
 
-map f (tips (Tip x)) = map f ([x]) {definition of tips rule 1}
-                     = map f (x:[]) {definition of []}
-                     = f x: (map f []) {definition of map}
-                     = f x: [] {definition of map}
-                     = [f x] {definition of []}
-                     = tips (Tip (f x)) {definition of tips rule 1}
-                     = tips (mapBtree f Tip x) {definition of mapBtree rule 1}
+map f (tips (Tip x)) = map f ([x]) {by the definition of tips rule 1}
+                     = map f (x:[]) {by the definition of []}
+                     = f x: (map f []) {by the definition of map}
+                     = f x: [] {by the definition of map}
+                     = [f x] {by the definition of []}
+                     = tips (Tip (f x)) {by the definition of tips rule 1}
+                     = tips (mapBtree f Tip x) {by the definition of mapBtree rule 1}
 
 We have proved that the propert holds for the base case.
 
 
-Induction Step
+Induction Step: We show that the property holds for t = Bin a b, map f (tips (Bin a b)) = tips (mapBtree f (Bin a b))
+with IH :
+    map f (tips b) = tips (mapBtree f b) for any b
 
-
+map f (tips (Bin a b)) = map f (tips a ++ tips b) {by the definition of tips rule 2}
+                       = (map f (tips a) ) ++ (map f (tips b)) {by the definition of ++}
+                       = (tips (mapBtree f a) ) ++ (map f (tips b)) {by the definition of IH}
+                       = (tips (mapBtree f a) ) ++ (tips (mapBtree f b)) {by the definition of IH}
+                       = (tips Bin (mapBtree f a) (mapBtree f b)) {by the definition of tips rule 2}    
+                       = (tips mapBtree f (Bin a b)) {by the definition of tips mapBtree rule 2}            
+                                  
+We have proved that the property holds for the inductive step. Hence We have proved that the property holds.
 -}
