@@ -49,17 +49,17 @@ Derive
 
 Case t= Leaf ( Base Case)
 
-inorderCat Leaf xs  = inorder Leaf ++ xs { specification of inorderCat}
+elemsCat Leaf xs  = elems Leaf ++ xs { specification of inorderCat}
                     = [] ++ xs {definition of inorder rule 1 }
                     = xs {definition of ++ }
 
 Case t = (Node x l r ) (Inductive Step) 
-  with IH : inorderCat r xs = inorder r ++ xs
+  with IH : elemsCat r xs = elems r ++ xs
 
-inorderCat (Node x l r) xs = inorder (Node x l r) ++ xs
-                           = inorder l ++ [x] ++ inorder r ++ xs{definition of inorder rule 2}
-                           = (inorder l ++ [x]) ++ (inorder r ++ xs) {definition of ++}
-                           = (inorderCat l [x]) ++ (inorderCat r xs) {definition of IH}
+elemsCat (Node x l r) xs = elems (Node x l r) ++ xs
+                         = x : elems l ++ elems r ++ xs{definition of elems rule 2}
+                         = ([x] ++ elems l) ++ (elems r ++ xs) {definition of ++}
+                         =  ++ (elems r ++ xs) {definition of ++}
 
 
 -}
