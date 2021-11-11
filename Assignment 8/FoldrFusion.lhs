@@ -12,53 +12,71 @@ THEN
 > map :: (a -> b) -> [a] -> [b]
 > map f = foldr (\x xs -> f x : xs) []
 
---> g= a and e=b
-----------------------------------------------
-To prove:  foldr a b . map f = foldr (a . f) b
 
-To show that foldr a b . map f = foldr (a . f) b, we can apply the fusion law using
-  f ==> foldr a b
+----------------------------------------------
+To prove:  foldr g e . map f = foldr (g . f) e
+
+To show that foldr g e . map f = foldr (g . f) e, we can apply the fusion law using
+  f ==> foldr g e
   g ==> \x xs -> f x : xs
   e ==> []
-  h ==> a . f
+  h ==> g . f
 
 Namely as follows:
 
-  foldr a b . map f
+  foldr g e . map f
               ----- rewrite map as foldr
-= foldr a b . foldr (\x xs->f x : xs) []
+= foldr g e . foldr (\x xs->f x : xs) []
   ---------------------------------------- foldr fusion
-= foldr (a . f) (foldr (\x xs->f x : xs) b [])
+= foldr (g . f) (foldr (\x xs->f x : xs) e [])
                 ------------------------------ definition of foldr
-= foldr (a . f) b
+= foldr (g . f) e
 
-Since the "THEN" part of the fsion law can only be applied if the "IF" part is true,
+>f (g x y) = h x (f y)
+Since the "THEN" part of the fusion law can only be applied if the "IF" part is true,
 we need to show that for all x,y :
-  foldr a b ((\x xs -> f x : xs) x y) = (a. f) x (f y)
+  foldr g e ((\x xs -> f x : xs) x y) = (g. f) x (foldr g e y)
 
 
 Which is the case since:  
 
-foldr a b ((\x xs -> f x : xs) x y) = foldr a b ((f x): y)
-                                     = a (f x) (foldr a b y)
-                                     = (a.f) x (f y) 
-
+foldr g e ((\x xs -> f x : xs) x y) = foldr g e ((f x): y)
+                                     = g (f x) :(foldr g e y)
+                                     = (g.f) x (f y) 
 
 --------------------------------------
-To prove:  map (a . b) = map a . map b
+To prove:  map (g . e) = map g . map e
 >map f = foldr (\x xs -> f x : xs) []
-
-To show that map (a . b) = map a . map b, we can apply the fusion law using
-  f ==> foldr a b
-  g ==> \x xs -> f x : xs
+>f . foldr g e = foldr h (f e)
+To show that map (g . e) = map g . map e, we can apply the fusion law using
+  f ==> foldr (\y ys -> g y : ys) []
+  g ==> (\x xs -> e x : xs)
   e ==> []
-  h ==> a . f
-
+  h ==> (\x xs -> (g.e)x : xs)
   Namely as follows:
-  map (a .b) 
+  map (g .e) 
       --------- rewrite map as foldr
- =foldr (\x xs -> (a.b)x : xs) []
+ =foldr (\x xs -> (g.e)x : xs) []
+                ----------------------foldr fusion
+ = foldr (\y ys -> g y : ys) [] ((foldr(\x xs -> e x : xs)[]))
+          -------------------------------rewrite foldr as map
+ = map g (foldr(\x xs -> e x : xs)[])
+  ---------------------------------------------rewrite foldr as map
+ = map g . map e
+
+
+ >f (g x y) = h x (f y)
+ Since the "THEN" part of the fsion law can only be applied if the "IF" part is true,
+  we need to show that for all x,y :
+  foldr (\y ys -> g y : ys) [] ((\x xs -> e x : xs) x y) = (\x xs -> (g.e)x : xs) x (foldr (\y ys -> g y : ys) [] y)
   
+  Which is the case since:  
+  foldr (\y ys -> g y : ys) [] ((\x xs -> e x : xs) x y) = foldr (\y ys -> g y : ys) [] ((\x xs -> e x : xs) x y)
+                            =foldr (\y ys -> g y : ys) [] (e x :y))
+                            =(g.e) x : foldr (\y ys -> g y : ys) [] y
+                            =(g.e) x : (map g y)
+                            =(\x xs -> (g.e) x :xs) x (map g y)
+                            =(\x xs -> (g.e)x : xs) x (foldr (\y ys -> g y : ys) [] y)
 
 
 
