@@ -1,3 +1,7 @@
+--Ege Sari s1034535
+--Group 81
+
+
 module Expression where
 
 data Tree a = Leaf | Node a (Tree a) (Tree a)
@@ -29,7 +33,7 @@ inorderCat (Node x l r) xs = inorder (Node x l r) ++ xs
                            = (inorder l ++ [x]) ++ (inorder r ++ xs) {definition of ++}
                            = (inorderCat l [x]) ++ (inorderCat r xs) {definition of IH}
 
-
+Now we can re-define inorderCat
 -}
 
 inorderCat :: Tree a -> [a] -> [a]
@@ -57,10 +61,11 @@ Case t = (Node x l r ) (Inductive Step)
   with IH : elemsCat r xs = elems r ++ xs
 
 elemsCat (Node x l r) xs = elems (Node x l r) ++ xs
-                         = x : elems l ++ elems r ++ xs{definition of elems rule 2}
-                         = ([x] ++ elems l) ++ (elems r ++ xs) {definition of ++}
-                         =  ++ (elems r ++ xs) {definition of ++}
-
+                         = x : elems l ++ elems r ++ xs {definition of elems rule 2}
+                         = x : (elems l ++ []) ++ (elems r ++ xs) {definition of ++}
+                         = x : (elemsCat l []) ++ (elemsCat r xs) {definition of IH}
 
 -}
-
+elemsCat :: Tree a -> [a] -> [a]
+elemsCat Leaf xs = xs
+elemsCat (Node x l r) xs = x : (elemsCat l []) ++ (elemsCat r xs)

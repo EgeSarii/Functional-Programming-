@@ -1,3 +1,7 @@
+--Ege Sari s1034535
+--Group 81
+
+
 > module FoldrFusion where
 >
 > import Prelude hiding (map)
@@ -41,7 +45,7 @@ we need to show that for all x,y :
 Which is the case since:  
 
 foldr g e ((\x xs -> f x : xs) x y) = foldr g e ((f x): y)
-                                     = g (f x) :(foldr g e y)
+                                     = g (f x) (foldr g e y)
                                      = (g.f) x (f y) 
 
 --------------------------------------
@@ -73,13 +77,10 @@ To show that map (g . e) = map g . map e, we can apply the fusion law using
   Which is the case since:  
   foldr (\y ys -> g y : ys) [] ((\x xs -> e x : xs) x y) = foldr (\y ys -> g y : ys) [] ((\x xs -> e x : xs) x y)
                             =foldr (\y ys -> g y : ys) [] (e x :y))
-                            =(g.e) x : foldr (\y ys -> g y : ys) [] y
-                            =(g.e) x : (map g y)
+                            =(g.e) x foldr (\y ys -> g y : ys) [] y
+                            =(g.e) x (map g y)
                             =(\x xs -> (g.e) x :xs) x (map g y)
                             =(\x xs -> (g.e)x : xs) x (foldr (\y ys -> g y : ys) [] y)
-
-
-
 
 ----------------------------------------------
 To prove:  mconcat . concat = mconcat . map mconcat
