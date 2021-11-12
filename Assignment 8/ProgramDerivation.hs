@@ -69,3 +69,6 @@ elemsCat (Node x l r) xs = elems (Node x l r) ++ xs
 elemsCat :: Tree a -> [a] -> [a]
 elemsCat Leaf xs = xs
 elemsCat (Node x l r) xs = x : (elemsCat l []) ++ (elemsCat r xs)
+
+elems' :: Tree a -> [a]
+elems' t = elemsCat t []
