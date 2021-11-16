@@ -10,7 +10,7 @@ instance (Show a) => Show (Stream a) where
   show s = "(" List.++ showN (16::Int) s List.++ ")"
     where
     showN 0 _         = "..."
-    showN n (x :> xs) = show x List.++ " :> " List.++ showN (n-1) xs
+    showN n (x :> xs) = show x List.++ "asdad :> " List.++ showN (n-1) xs
 
 from :: Integer -> Stream Integer
 from n = n :> from (n + 1)
