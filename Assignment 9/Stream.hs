@@ -56,8 +56,17 @@ nat = 0 :> zipWith (+) nat (repeat 1)
 fib = 0 :> 1 :> zipWith (+) fib (tail fib)
 
 primes :: Stream Integer
-primes = 
+primes = 2:> primesHelper(from 2)
 
+primesHelper :: Stream Integer -> Stream Integer
+primesHelper (x:> xs)= if wilson x == 2 then primesHelper xs else (wilson x:> primesHelper xs) 
+
+wilson :: Integer -> Integer
+wilson n = ((((fac n ) `mod` (n+1)) `div` n) *(n-1) ) +2
+
+fac :: Integer -> Integer
+fac 1 = 1
+fac n = n * fac (n-1)
 --primetwins :: Stream (Integer,Integer)
  
 
