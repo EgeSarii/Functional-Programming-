@@ -1,3 +1,7 @@
+--Ege Sari s1034535
+--Group 81
+
+
 module Stream where
 
 import qualified Data.List as List
@@ -67,7 +71,15 @@ wilson n = ((((fac n ) `mod` (n+1)) `div` n) *(n-1) ) +2
 fac :: Integer -> Integer
 fac 1 = 1
 fac n = n * fac (n-1)
---primetwins :: Stream (Integer,Integer)
- 
 
---combine :: Stream a -> Stream a -> Stream a
+primetwinsHelper ::Stream Integer -> Stream Integer -> Stream (Integer,Integer)
+primetwinsHelper (a:>as) (b:>bs)
+ | b-a < 2 = primetwinsHelper (a:> as) bs
+ | b-a > 2 = primetwinsHelper as (b:> bs)
+ |otherwise= (a,b) :> primetwinsHelper as bs
+
+primetwins :: Stream (Integer,Integer)
+primetwins = primetwinsHelper primes primes
+
+combine :: Stream a -> Stream a -> Stream a
+combine (a:> as) (b:>bs) = a:> b:> combine as bs
