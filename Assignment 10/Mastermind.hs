@@ -64,7 +64,16 @@ getCode = do
   let s = sequence (replicate 4 (randomRIO x))
   fmap (fmap (\x -> toEnum x)) s
 
---playGame :: ??? -> IO ()
+playGame :: Int -> IO ()
+playGame i = do
+  putStrLn "I picked a random code word with 4 colours. "
+  putStrLn "Possible colours are White Silver Green Red Orange Pink Yellow Blue. "
+  putStrLn ("Try to guess the secret code word, "++ show i ++" tries left ")
+  s <- getLine
+  putStrLn (show (fst(scoreAttempt getCode (words s)))) 
+
+  
+
 
 main :: IO ()
 main = do
