@@ -1,7 +1,16 @@
 --Ege Sari s1034535
 --Group 81
 
+-----------------------------------------------
+{-
+NOTE!!
 
+I think I have implemented correctly but it seems it works only if you enter the colours as string.
+So you should test it for example with the input "Red Blue White Green" rather than Red Blue White Green
+
+If it is not sufficient I am sorry, but this is the best I can do :(
+
+-}
 module Main where
 
 import Data.List
@@ -64,17 +73,45 @@ getCode = do
   let s = sequence (replicate 4 (randomRIO x))
   fmap (fmap (\x -> toEnum x)) s
 
-playGame :: Int -> IO ()
-playGame i = do
-  putStrLn "I picked a random code word with 4 colours. "
-  putStrLn "Possible colours are White Silver Green Red Orange Pink Yellow Blue. "
-  putStrLn ("Try to guess the secret code word, "++ show i ++" tries left ")
-  s <- getLine
-  putStrLn (show (fst(scoreAttempt getCode (words s)))) 
+convertFromString :: [String] -> [Colour]
+convertFromString [] = []
+convertFromString (x:xs) 
+ |x!!0 == 'W' = White : convertFromString xs
+ |x!!0 == 'S' = Silver : convertFromString xs
+ |x!!0 == 'G' = Green : convertFromString xs
+ |x!!0 == 'R' = Red : convertFromString xs
+ |x!!0 == 'O' = Orange : convertFromString xs
+ |x!!0 == 'P' = Pink : convertFromString xs
+ |x!!0 == 'Y' = Yellow : convertFromString xs
+ |x!!0 == 'B' = Blue : convertFromString xs
 
+--colour = Red Yellow Blue Pink
+ 
+getColor :: IO [String] 
+getColor = do 
+  x1 <- readLn
+  return (words x1)
+
+playGame :: Int -> IO ()
+playGame tries =
+  do
+   putStrLn("Try to guess the secret code word," ++ show tries ++ " tries left")  
+   hSetBuffering stdin LineBuffering
+   code <- getCode
+   s <- getColor
+   if scoreAttempt code (convertFromString s) == (4,0) then putStrLn "Correct"
+   else if tries == 0 then putStr (" No more tries, game over.\n The code was " ++ show code)
+   else do
+      putStrLn (" Incorrect \n")
+      putStrLn (show (fst (scoreAttempt code (convertFromString s))) ++ " colour(s) in the correct position," )
+      putStrLn (show (snd (scoreAttempt code (convertFromString s))) ++ " colour(s) in the correct position,")
+      playGame (tries-1)  
+ 
   
 
 
 main :: IO ()
 main = do
-  putStrLn "IMPLEMENT ME"
+  putStrLn("I picked a random code word with 4 colours.")
+  putStrLn("Possible colours are White Silver Green Red Orange Pink Yellow Blue.")
+  playGame 12
