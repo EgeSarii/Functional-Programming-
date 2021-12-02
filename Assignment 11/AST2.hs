@@ -36,10 +36,10 @@ eval (Sub x y) vars = (-) <$> (eval x vars) <*> (eval y vars)
 
 eval (Mul x y) vars = (*) <$> (eval x vars) <*> (eval y vars)
 
-eval (Div x y) vars = if (eval y /= 0) then (/) <$> (eval x vars) <*> (eval y vars) 
+eval (Div x y) vars = if (eval y vars /= Okay 0) then (/) <$> (eval x vars) <*> (eval y vars) 
   else Error ["division by zero"]
 
 eval (Var name) vars = case vars of
-                        [] -> Error["unknown variable: x","unknown variable: y"]
+                        [] -> Error["unknown variable: x"++ name]
                         (x:xs) -> if name == (fst x) then pure (snd x)
                                   else eval (Var name) xs
