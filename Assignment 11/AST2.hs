@@ -1,7 +1,11 @@
+--Ege Sari s1034535
+--Group 81
+
 module AST where
 
 -- this template uses infix constructors; feel free to use AST.hs (which uses infix ones) if you prefer
 -- (if you really liked your own solution to Exercise 4.7, you can use that as well)
+import Data.List
 
 type Identifier = String
 
@@ -17,14 +21,12 @@ instance Functor Result where
   fmap f (Okay a) = Okay (f a)
 
 instance Applicative Result where
- -- (<*>) :: Result (a -> b) -> Result a -> Result b
- --pure :: a -> Result a
- pure a = Okay a
- _ <*> (Error s) = Error s
- (Error s) <*> _ = Error s
- (Okay f) <*> (Okay a) = Okay (f a)
-  
-
+  -- (<*>) :: Result (a -> b) -> Result a -> Result b
+   --pure :: a -> Result a
+  pure a = Okay a
+  Okay (f) <*> r = fmap f r
+  (Error s1) <*> (Error s2) = Error (s1 `union` s2) 
+  (Error s) <*> _ = Error s   
 
 
 eval :: (Fractional a, Eq a) => Expr -> [(Identifier,a)] -> Result a 
@@ -37,9 +39,9 @@ eval (Sub x y) vars = (-) <$> (eval x vars) <*> (eval y vars)
 eval (Mul x y) vars = (*) <$> (eval x vars) <*> (eval y vars)
 
 eval (Div x y) vars = if (eval y vars /= Okay 0) then (/) <$> (eval x vars) <*> (eval y vars) 
-  else Error ["division by zero"]
+  else Error ["division by zero"] <*> (eval x vars) <*> (eval y vars) 
 
 eval (Var name) vars = case vars of
-                        [] -> Error["unknown variable: x"++ name]
+                        [] -> Error["unknown variable: "++ name]
                         (x:xs) -> if name == (fst x) then pure (snd x)
                                   else eval (Var name) xs
