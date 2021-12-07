@@ -13,7 +13,7 @@ import System.Random
  - type RandomState a = State StdGen a
  -}
 
-type GlobalState = StdGen
+type GlobalState = StdGen 
 
 newtype RandomState a = St { runState :: GlobalState -> (a, GlobalState) }
 
