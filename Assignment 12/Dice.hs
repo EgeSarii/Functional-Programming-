@@ -1,7 +1,9 @@
 module Dice where
 
 import System.Random
+import Data.List
 import RandomState
+import RandomGen
 
 data Expr = Lit Integer | Dice Integer 
           | Expr :+: Expr
@@ -40,10 +42,10 @@ evalM (Max ex1 ex2) da= max <$> (evalM ex1 da) <*> (evalM ex2 da)
 
 
 
---evalRIO :: Expr -> IO Integer
---evalRIO expr = evalM expr (\dice->randomRIO (1,dice) >>= return) -- silent version
+evalRIO :: Expr -> IO Integer
+evalRIO expr = evalM expr (\dice->randomRIO (1,dice) >>= return) -- silent version
 --evalRIO expr = evalM expr (\dice->randomRIO (1,dice) >>= report) -- verbose version
---  where report x = do { putStr "rolled a "; print x; return x }
+  where report x = do { putStr "rolled a "; print x; return x }
 
 evalIO :: Expr -> IO Integer
 evalIO expr = evalM expr (\dice -> do {
@@ -52,14 +54,21 @@ evalIO expr = evalM expr (\dice -> do {
   return (read x)
   })
 
---evalND :: Expr -> [Integer]
+evalND :: Expr -> [Integer]
+evalND expr = nub (evalM expr (\dice -> [1..dice]))
 
-avg :: (Fractional a) => [Integer] -> a
+avg :: (Fractional a, Show a) => [Integer] -> a
 avg xs = fromIntegral (sum xs) / fromIntegral (length xs)
 
---expectation :: (Fractional a) => Expr -> a
---expectation e = avg (evalND e)
+expectation :: (Fractional a, Show a) => Expr -> a 
+expectation e = avg (evalND e)
 
---evalR :: Expr -> RandomState Integer
+--genRandInteger :: (Integer,Integer) -> RandomState Integer
+--roll_2d6 :: RandomState Integer
+evalR :: Expr -> RandomState Integer
+evalR expr = evalM expr (\dice -> genRandInteger(1,dice))
+
+--helper :: Int -> Expr -> IO [Integer]
+
 
 --observed :: (Fractional a) => Int -> Expr -> IO a
