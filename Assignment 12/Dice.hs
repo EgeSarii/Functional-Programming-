@@ -77,5 +77,5 @@ helper 1 expr = (evalR expr) >>= (\result -> return [result])
 helper i expr = (evalR expr) >>= (\result -> 
   (helper (i-1) expr >>= (\result2 -> return(result : result2)) ))
 
-observed :: (Fractional a )=>Int -> Expr -> RandomState a
-observed i expr = (helper i expr) >>=  (\list -> return(div (sum list)(toInteger i)))
+observed :: (Fractional a, Show a )=>Int -> Expr -> RandomState a
+observed i expr = (helper i expr) >>= (\list -> return(avg list))
