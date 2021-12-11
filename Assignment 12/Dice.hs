@@ -1,3 +1,6 @@
+--Ege Sari s1034535
+--Group 81
+
 module Dice where
 
 import System.Random
@@ -68,7 +71,11 @@ expectation e = avg (evalND e)
 evalR :: Expr -> RandomState Integer
 evalR expr = evalM expr (\dice -> genRandInteger(1,dice))
 
---helper :: Int -> Expr -> IO [Integer]
+-- (>>= ) RandomState Integer -> (Integer -> RandomState [Integer]) -> RandomState [Integer]
+helper :: Int -> Expr -> RandomState [Integer]
+helper 1 expr = (evalR expr) >>= (\result -> return [result])
+helper i expr = (evalR expr) >>= (\result -> 
+  (helper (i-1) expr >>= (\result2 -> return(result : result2)) ))
 
-
---observed :: (Fractional a) => Int -> Expr -> IO a
+observed :: (Fractional a )=>Int -> Expr -> RandomState a
+observed i expr = (helper i expr) >>=  (\list -> return(div (sum list)(toInteger i)))
