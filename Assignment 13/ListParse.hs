@@ -8,9 +8,10 @@ import Parser
 {- grammar:
  -   intList   = "{" { integer } "}"
  -}
-
+--newtype Parser a = P { parse :: String -> Maybe (a, String) }
+--parse :: Parser a -> (String -> Maybe (a, String))
 --intList :: Parser [Integer]
-
+--intList = 
 
 {- grammar:
  -   intRecord = "{" integer "#" { integer } "}"
