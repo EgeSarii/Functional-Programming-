@@ -10,8 +10,18 @@ import Parser
  -}
 --newtype Parser a = P { parse :: String -> Maybe (a, String) }
 --parse :: Parser a -> (String -> Maybe (a, String))
---intList :: Parser [Integer]
---intList = 
+--(<*>) :: f(a->b) -> fa -> fb
+--fmap:: (a->b) -> fa -> fb
+parseAll :: Parser a -> String -> Maybe a
+parseAll p inp = case parse p inp of
+                   Just (x,[]) -> Just x
+                   _          -> Nothing
+
+intList :: Parser [Integer]
+intList = (pure (++)) <*> P(\s->  case s!!0 of
+                            '{' -> Just ([],  tail)
+                             '1' -> Just (1, tail)
+                             _ -> Nothing )
 
 {- grammar:
  -   intRecord = "{" integer "#" { integer } "}"
