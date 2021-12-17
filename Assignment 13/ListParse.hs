@@ -1,3 +1,6 @@
+--Ege Sari s1034535
+--Group 81
+
 {-# OPTIONS_GHC -Wno-unused-do-bind #-}
 module ListParse where
 
@@ -19,4 +22,9 @@ intList = (:) <$> symbol "{" *> many natural <* symbol "}"
  -}
 
 intRecord :: Parser [Integer]
-intRecord  = do { }
+intRecord  = do { symbol "{"; n <-natural ; symbol "#"; record<-helper n ; symbol "}" ; return record }
+
+
+helper :: Integer-> Parser [Integer]
+helper 1 = (:[])<$> natural
+helper n = (:) <$> natural <*> helper(n-1) 
