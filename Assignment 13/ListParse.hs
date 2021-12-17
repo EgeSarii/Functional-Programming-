@@ -22,9 +22,4 @@ intList = (:) <$> symbol "{" *> many natural <* symbol "}"
  -}
 
 intRecord :: Parser [Integer]
-intRecord  = do { symbol "{"; n <-natural ; symbol "#"; record<-helper n ; symbol "}" ; return record }
-
-
-helper :: Integer-> Parser [Integer]
-helper 1 = (:[])<$> natural
-helper n = (:) <$> natural <*> helper(n-1) 
+intRecord  = do { symbol "{"; n <-natural ; symbol "#"; record<-(times (fromInteger n) natural); symbol "}" ; return record }

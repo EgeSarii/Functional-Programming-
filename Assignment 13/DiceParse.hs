@@ -15,6 +15,7 @@ formula  = formula, "+", term
          | formula, "-", term
          | term
 
+
 term     = "(", expr, ")"
          | integer                  -- constants
          | [positive], "d", positive -- dice
@@ -28,16 +29,28 @@ expr = fraction
 
 fraction :: Parser Expr
 fraction = formula
+         
+--formula_Alt = ( formula "+" | formula "-") term
 
 formula :: Parser Expr
-formula = term
+formula = 
 
 term :: Parser Expr
-term = Lit <$> integer
+term = do{symbol "(" ; e<-expr; symbol ")"; return e} 
+   <|> do{p<-positive; symbol "d";p2 <- positive; return (termHelper p (Dice p2))} 
+   <|> do{i <- integer; return (Lit i)} 
+   
+termHelper :: Integer -> Expr -> Expr
+termHelper 1 expr= expr
+termHelper n expr = (expr :+: termHelper (n-1) expr) 
+
 
 positive :: Parser Integer
-positive = integer
+positive = do{n<-integer;  if n < 1 then error ("number must be positive")  else return n}
 
+
+
+{-
 -- test cases: a list of tuples listing the input and output of "parseAll expr"
 -- in case you used a different constructor for division, edit the "where" definitions
 test :: [(String, Maybe Expr)]
@@ -69,3 +82,4 @@ deviations f ans = [ (x,y,f x) | (x,y) <- ans, f x /= y ]
 -- combine with the functions in dice
 calculate :: (Fractional a) => String -> Maybe a
 calculate str = expectation <$> parseAll expr str
+-}
