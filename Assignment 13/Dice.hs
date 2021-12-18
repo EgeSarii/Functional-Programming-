@@ -1,81 +1,87 @@
 --Ege Sari s1034535
 --Group 81
 
-module Dice where
+module Dice where 
 
 import System.Random
+import Control.Monad 
+import Control.Applicative
+import RandomState 
+import RandomGen 
 import Data.List
-import RandomState
-import RandomGen
 
 data Expr = Lit Integer | Dice Integer 
-          | Expr :+: Expr
+          | Expr :+: Expr | Expr :-: Expr | Expr :/: Integer
           | Min Expr Expr | Max Expr Expr
-  deriving (Show)
+          | SumBestOf [Expr] Int
+  deriving (Show,Eq)
 
-infixl 6 :+: 
+infixl 6 :+:  
+infixl 6 :-: 
+infixl 7 :/: 
 
 type DiceAction m = Integer -> m Integer
 
+evalM :: (Monad m) => Expr -> DiceAction m -> m Integer
+evalM (Lit m)          _ = return m 
+evalM (lhs :+: rhs)    d = (+) <$> evalM lhs d <*> evalM rhs d
+evalM (lhs :-: rhs)    d = (-) <$> evalM lhs d <*> evalM rhs d
+evalM (lhs :/: k)      d = div <$> evalM lhs d <*> pure k
+evalM (Min lhs rhs)    d = min <$> evalM lhs d <*> evalM rhs d
+evalM (Max lhs rhs)    d = max <$> evalM lhs d <*> evalM rhs d
+evalM (Dice k)         d = d k
+evalM (SumBestOf еs n) d = sum . take n . sortOn negate <$> mapM (\e->evalM e d) еs 
 
 {-
-evalM :: Expr -> DiceAction IO -> IO Integer  -- prototype
-evalM (Lit i) da= return i
-evalM (Dice i) da= da i
-evalM (ex1 :+: ex2) da= (+) <$> (evalM ex1 da) <*> (evalM ex2 da)
-evalM (Min ex1 ex2) da= min <$> (evalM ex1 da) <*> (evalM ex2 da)
-evalM (Max ex1 ex2) da= max <$> (evalM ex1 da) <*> (evalM ex2 da)
+--alternative definition, using do-notation 
+evalM (Lit m)          _ = return m
+evalM (lhs :+: rhs)    d = do { x <- evalM lhs d; y <- evalM rhs d; return (x+y) } 
+evalM (lhs :-: rhs)    d = do { x <- evalM lhs d; y <- evalM rhs d; return (x-y) } 
+evalM (lhs :/: k)      d = do { x <- evalM lhs d; return (x `div` k) }
+evalM (Min lhs rhs)    d = do { x <- evalM lhs d; y <- evalM rhs d; return (min x y) }
+evalM (Max lhs rhs)    d = do { x <- evalM lhs d; y <- evalM rhs d; return (max x y) }
+evalM (Dice k)         d = do { roll <- d k; return roll }
+evalM (SumBestOf еs n) d = do { rolls <- mapM (flip evalM d) еs; return $ sum $ take n $ sortOn negate $ rolls } 
 -}
 
---fmap :: (a-> b) -> fa -> fb
---pure :: a -> f a
---(<*>) :: f (a -> b) -> f a -> f b
---return :: a -> m a
---(>>=) :: m a -> (a -> m b) -> m b
---(>>) :: m a -> m b -> m b
-
-
-evalM ::(Monad m) => Expr -> DiceAction m -> m Integer -- final version
--- final version
-evalM (Lit i) da= return i
-evalM (Dice i) da= da i
-evalM (ex1 :+: ex2) da= (+) <$> (evalM ex1 da) <*> (evalM ex2 da)
-evalM (Min ex1 ex2) da= min <$> (evalM ex1 da) <*> (evalM ex2 da)
-evalM (Max ex1 ex2) da= max <$> (evalM ex1 da) <*> (evalM ex2 da)
-
-
-
-evalRIO :: Expr -> IO Integer
-evalRIO expr = evalM expr (\dice->randomRIO (1,dice) >>= return) -- silent version
---evalRIO expr = evalM expr (\dice->randomRIO (1,dice) >>= report) -- verbose version
+evalRIO :: Expr -> IO Integer 
+--evalRIO expr = evalM expr (\dice->randomRIO (1,dice) >>= return) -- silent version 
+evalRIO expr = evalM expr (\dice->randomRIO (1,dice) >>= report) -- verbose version 
   where report x = do { putStr "rolled a "; print x; return x }
 
-evalIO :: Expr -> IO Integer
-evalIO expr = evalM expr (\dice -> do {
-  putStrLn ("enter for Dice " ++ show dice); 
-  x <-getLine; 
-  return (read x)
-  })
+evalIO :: Expr -> IO Integer 
+evalIO expr = evalM expr askUser
+  where 
+  askUser :: Integer -> IO Integer 
+  askUser k = do 
+    putStr $ "Roll a d" ++ show k ++ ": "
+    result <- read <$> getLine 
+    if 1 <= result && result <= k then do 
+      return result 
+    else do
+      putStrLn "That is not allowed, try again!"
+      askUser k 
 
-evalND :: Expr -> [Integer]
-evalND expr = nub (evalM expr (\dice -> [1..dice]))
+evalND :: Expr -> [Integer] 
+evalND expr = evalM expr (\dicе->[1..dicе])
 
-avg :: (Fractional a, Show a) => [Integer] -> a
+avg :: (Fractional a) => [Integer] -> a
 avg xs = fromIntegral (sum xs) / fromIntegral (length xs)
 
-expectation :: (Fractional a, Show a) => Expr -> a 
-expectation e = avg (evalND e)
+expectation :: (Fractional a) => Expr -> a
+expectation e = avg (evalND e) 
 
---genRandInteger :: (Integer,Integer) -> RandomState Integer
---roll_2d6 :: RandomState Integer
-evalR :: Expr -> RandomState Integer
-evalR expr = evalM expr (\dice -> genRandInteger(1,dice))
+evalR :: Expr -> RandomState Integer 
+evalR expr = evalM expr (\dicе->genRandInteger (1,dicе))
 
--- (>>= ) RandomState Integer -> (Integer -> RandomState [Integer]) -> RandomState [Integer]
-helper :: Int -> Expr -> RandomState [Integer]
-helper 1 expr = (evalR expr) >>= (\result -> return [result])
-helper i expr = (evalR expr) >>= (\result -> 
-  (helper (i-1) expr >>= (\result2 -> return(result : result2)) ))
+observed :: (Fractional a) => Int -> Expr -> IO a 
+observed n expr = safeR $ observedR n expr 
+-- note, we can define this directly as well:
+--observed n expr = avg <$> replicateM n (evalRIO expr)
 
-observed :: (Fractional a, Show a )=>Int -> Expr -> RandomState a
-observed i expr = (helper i expr) >>= (\list -> return(avg list))
+observedR :: (Fractional a) => Int -> Expr -> RandomState a
+observedR n expr = avg <$> replicateM n (evalR expr)
+
+--in case you want to manually roll many dice rolls and get statistics: 
+diceExperiment :: (Fractional a) => Int -> Expr -> IO a
+diceExperiment n expr = avg <$> replicateM n (evalIO expr)

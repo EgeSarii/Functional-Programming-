@@ -1,3 +1,6 @@
+--Ege Sari s1034535
+--Group 81
+
 module ParseDice where
 
 import Control.Applicative
@@ -17,33 +20,35 @@ formula  = formula, "+", term
 
 
 term     = "(", expr, ")"
-         | integer                  -- constants
+         | integer                   -- constants
          | [positive], "d", positive -- dice
 
 positive = <an integer greater than 0>
 
 -}
-
 expr :: Parser Expr
 expr = fraction
 
 fraction :: Parser Expr
-fraction = formula
+fraction = do{t <- term; symbol "/"; p<- positive; return (t :/: p) } 
+        <|>do {f <- formula; return f} 
          
---formula_Alt = ( formula "+" | formula "-") term
+--formula_Alt = term ["+" term | "-" term]
 
 formula :: Parser Expr
-formula = 
+formula = do { t1 <- term; exprSuffix t1 } where exprSuffix t1 = do { symbol "+"; t2 <- term; exprSuffix (t1 :+: t2 ) }<|> do { symbol "-"; t2 <- term; exprSuffix (t1 :-: t2 ) }<|>return t1
 
 term :: Parser Expr
 term = do{symbol "(" ; e<-expr; symbol ")"; return e} 
-   <|> do{p<-positive; symbol "d";p2 <- positive; return (termHelper p (Dice p2))} 
+   <|> do{p<-posBlank; symbol "d";p2 <- positive; return (termHelper p (Dice p2))} 
    <|> do{i <- integer; return (Lit i)} 
    
 termHelper :: Integer -> Expr -> Expr
 termHelper 1 expr= expr
 termHelper n expr = (expr :+: termHelper (n-1) expr) 
 
+posBlank ::Parser Integer
+posBlank = positive<|>(return 1) 
 
 positive :: Parser Integer
 positive = do{n<-integer;  if n < 1 then error ("number must be positive")  else return n}
