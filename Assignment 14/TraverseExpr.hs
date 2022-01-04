@@ -1,9 +1,15 @@
+--Ege Sari s1034535
+--Group 81
+
+
 {-# LANGUAGE InstanceSigs #-}
 module TraverseExpr where
 
 import Control.Monad.State
+import Data.Foldable
 import Data.List
 import Data.Maybe
+
 
 data Expr var = Var var | Lit Integer | Op BinOp (Expr var) (Expr var)
   deriving (Show,Eq)
@@ -23,11 +29,15 @@ instance Foldable Expr where
   foldMap f (Var var) = (f var)
   foldMap f (Op op expr1 expr2) =  foldMap f expr1 <> foldMap f expr2
 
+--Some information is ignored for instance we ignore the operations. We only care about the
+--variables (which are important for the last part indexVars).
+
 instance Traversable Expr where
   --traverse :: (Applicative f) => (a -> f b) -> Expr a -> f (Expr b)
   traverse f (Lit i) = pure(Lit i)
   traverse f (Var var) = pure(\x -> (Var x)) <*> (f var)
   traverse f (Op op expr1 expr2) = pure (Op op) <*> (traverse f expr1) <*> (traverse f expr2)
+
 
 allVars :: (Ord a) => Expr a -> [a]
 allVars expr = nub (foldMap (:[]) expr)
@@ -44,20 +54,17 @@ renameVar name = renameHelper name 0
 
 renameHelper :: String -> Int -> State [(String,Int)] Int
 renameHelper name index = do var <-get
-                             if fst(var!!index) == name then return index else 
-                               if length(var)-1 ==index then 
-                                 do {put (var ++ [(name, index+1)]) ; return index} 
+                             if length(var)<=index then do {put (var ++ [(name, index+1)]) ; return index} 
+                               else 
+                               if fst(var!!index) == name then return index
                                 else (renameHelper name (index+1))
-                                                          
-                                
 
-renameAllVars :: Expr String -> Int -> State [(String,Int)] (Expr Int)
-renameAllVars expr index = do allList <- allVars expr
-                              helper allList index
-   
-helper :: [String] -> Int -> State [(String, Int)] (Expr Int)
-helper 
+
 --evalState :: State s a → s → a
 --traverse :: (Applicative f) => (a -> f b) -> Expr a -> f (Expr b)
 
---indexVars :: Expr String -> Expr Int
+renameAllVars :: Expr String -> State [(String,Int)] (Expr Int)                      
+renameAllVars  = traverse renameVar
+
+indexVars :: Expr String -> Expr Int
+indexVars expr = evalState (renameAllVars expr) []
