@@ -433,14 +433,29 @@ class Hashable h where
 
 newtype Inflater a = IF { inflate::[Bit] -> Maybe(a, [Bit] ) }
 --inflate :: Inflater a -> [Bit] -> Maybe(a, [Bit] ) 
+
 instance Applicative Inflater where
   --pure :: a -> Inflater a
   --(<*>) :: Inflater (a-> b) -> Inflater a -> Inflater b 
   --fmap :: (a-> b) -> Inflater a -> Inflater b
   pure a = (IF (\b -> (Just (a,b))))
-  f <*> a = pure ((fst (fromJust(inflate f [O])) ) (fst (fromJust(inflate a [O])) ))
+  f <*> a =IF $ \bs -> case inflate f bs of
+                            Nothing -> Nothing
+                            Just (func, out) -> inflate(fmap func a) out
+
+instance Alternative Inflater where
+  --empty :: f a
+  empty = IF(\bs -> Nothing)
+
+  --(<|>) :: f a -> f a -> f a
+  fa1 <|> fa2 = IF(\bs -> case inflate fa1 bs of
+                               Nothing -> inflate fa2 bs
+                               Just -> Just)
+bit:: Bit -> Inflater()
+bit b = IF(\bs ->)
 -}
 
+{-
 data Base = A | C | G | T
 data Tree = Leaf Base | Fork Tree Tree
 data Bit = O | I
@@ -455,7 +470,7 @@ compressBase b = case b of
 compressTree :: Tree -> [Bit]
 compressTree (Leaf b) = O : (compressBase b)
 compressTree (Fork l r) = I : (compressTree l) ++ (compressTree r)
-
+-}
 newtype CircList a = CL {fromCL :: [a] }
 --fromCL :: CircList a -> [a]
 
@@ -492,4 +507,19 @@ size White = 1
 size (Node sts) = 1 + sum (map size (t4ToList sts))
 
 diff :: QTree -> Int
-diff 
+diff Black = -1
+diff White = 1
+diff (Node sts) = sum (map diff (t4ToList sts))
+
+data Bit = O |I deriving (Eq, Ord)
+
+compress :: QTree -> [Bit]
+compress Black = [O,O]
+compress White = [O,I]
+compress (Node sts) = I : concat (map compress (t4ToList sts))
+
+decompress :: [ Bit ] -> QTree
+decompress [] = []
+decompress (O:O:bs) = (Black : decompress bs)
+decompress (O:I:bs) = (White : decompress bs)
+
